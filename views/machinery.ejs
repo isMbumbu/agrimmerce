@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    .form-box {
+    display: flex;
+    justify-content: center; /* Horizontal alignment */
+    align-items: center; /* Vertical alignment */
+    height: 50px; /* Adjust height as needed */
+    }
+
+    .close-icon {
+    font-size: 24px; /* Adjust size as needed */
+    }
+
+        .products-container {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr); /* Three columns */
+          gap: 20px; /* Spacing between items */
+          justify-content: center;
+        }
+        
+        .pro {
+          width: calc(33.333% - 20px); /* Adjusted width */
+          margin-left: 25px;
+          margin-bottom: 20px; /* Increased bottom margin */
+          text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+          .products-container {
+            grid-template-columns: repeat(2, 1fr); /* Two columns for smaller screens */
+          }
+        
+          .pro {
+            width: calc(50% - 20px); /* Adjusted width for smaller screens */
+          }
+        }
+        
+        @media (max-width: 600px) {
+          .products-container {
+            grid-template-columns: 1fr; /* One column for even smaller screens */
+          }
+        
+          .pro {
+            width: calc(100% - 20px); /* Adjusted width for very small screens */
+          }
+        
+          /* Center the items in the one-column design */
+          .pro:nth-child(2n) {
+            margin-left: auto;
+            margin-right: auto;
+          }
+        }
+        .cart {
+          position: fixed;
+          top: 0;
+          right: -100%;
+          width: 360px;
+          max-height: 80vh; /* Set a maximum height to allow scrolling */
+          overflow-y: auto; /* Enable vertical scrolling if needed */
+          padding: 20px;
+          background: #fff;
+          box-shadow: -2px 0 4px hsl(0.4% 15% / 10%);
+          transition: 0.3s;
+        }
+        
+        .cart.active{
+          right:0;
+        }
+        .cart-title{
+          text-align: center;
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin-top: 2rem;
+        }
+        .cart-box{
+          display: grid;
+          grid-template-columns: 32% 50% 18%;
+          align-items: center;
+          gap: 1rem;
+          margin-top: 1rem;
+        }
+        .cart-img{
+          width: 100px;
+          height: 100px;
+          object-fit: contain;
+          padding: 10px;
+        }
+        .detail-box{
+          display: grid;
+          row-gap: 0.5rem;
+        }
+        .cart-product-title{
+          font-size: 0.7rem;
+          text-transform: uppercase;
+        }
+        .cart-price{
+          font-weight: 400;
+        }
+        .cart-quantity{
+          border: 1px solid #35e708;
+          outline-color: #35e708;
+          width: 2.4rem;
+          text-align: center;
+          font-size: 1rem;
+        }
+        .cart-remove{
+          font-size: 24px;
+          color: #35e708;
+          cursor: pointer;
+        }
+        .total{
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 1.5rem;
+          border-top: 1px solid #293127;
+        }
+        .total-title{
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        .total-price{
+          margin-left: 0.5rem;
+        }
+        .btn-buy{
+          display: flex;
+          margin: 1.5rem auto 0 auto;
+          padding: 12px 20px;
+          border: #35e708;
+          color: rgb(196, 196, 0);
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+        }
+        .btn-buy:hover{
+          background: #35e708;
+          color: white;
+        }
+        #close-cart{
+          position: absolute;
+          top: 1rem;
+          right: 0.8rem;
+          font-size: 2rem;
+          color: #293127;
+          cursor: pointer;
+        }
+        .green-cart {
+          color: rgb(8, 218, 8); /* Change the color to green */
+          cursor: pointer;
+        }
+        
+            </style>
+    <link rel="stylesheet" href="css/agri.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-UX2Otca4JKaaRDxQ6u+O1bZQoo/Uqp1rpXzeOKEPTG44b8Rn3E6aDfF1yA/umgT9" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+     
+</style>
+</head>
+<body>
+   <div class="hero1">
+    <div class="form-box">
+        <i class="fas fa-times close-icon" onclick="goToHomePage()"></i>
+    </div>
+    <section id="product1" class="section-p1">
+        <div class="product-header">
+          <h2>New Arrivals</h2>
+          <p>Best Agricultural Products</p>
+          <section id="search-bar">
+            <search-bar></search-bar>
+            <input type="text" id="search-item" placeholder="Search here..." onkeyup="search()">
+            <i class="fa fa-search"></i>
+          </section>
+          
+        </div>
+        
+        <div class="products-container" id="product-list">
+          <!-- The products will be rendered here -->
+          
+
+          
+        </div>
+      </section>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-h3CG8ZsLar+gKBG1+0D/jgWRB4cOz7YNcrEG3rfJ8gZoVS+xktPbwrCXlqOMlY1M" crossorigin="anonymous"></script>
+    <script>
+    function goToHomePage() {
+            window.location.href = "/shop"; 
+        }
+
+        function search() {
+            let filter = document.getElementById('search-item').value.toUpperCase();
+            let items = document.querySelectorAll('.pro');
+
+            items.forEach(item => {
+                let h5 = item.querySelector('h5');
+                let span = item.querySelector('span');
+
+                let valueH5 = h5.innerHTML || h5.innerText || h5.textContent;
+                let valueSpan = span.innerHTML || span.innerText || span.textContent;
+
+                if (valueH5.toUpperCase().indexOf(filter) > -1 || valueSpan.toUpperCase().indexOf(filter) > -1) {
+                    item.style.display = "";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        function renderProducts(products) {
+            const productsEl = document.getElementById('product-list');
+            productsEl.innerHTML = '';
+
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('pro');
+
+                const img = document.createElement('img');
+                img.src = product.imgSrc;
+                img.alt = product.name;
+
+                const desDiv = document.createElement('div');
+                desDiv.classList.add('des');
+
+                const categorySpan = document.createElement('span');
+                categorySpan.textContent = product.category;
+
+                const nameH5 = document.createElement('h5');
+                nameH5.textContent = product.name;
+
+                const starDiv = document.createElement('div');
+                starDiv.classList.add('star');
+
+                for (let i = 0; i < product.rating; i++) {
+                    const starSpan = document.createElement('span');
+                    starSpan.classList.add('fa', 'fa-star', 'checked');
+                    starDiv.appendChild(starSpan);
+                }
+
+                const priceH4 = document.createElement('h4');
+                priceH4.textContent = product.price;
+
+                // Create cart icon
+                const cartIcon = document.createElement('i');
+                cartIcon.classList.add('fa', 'fa-shopping-cart', 'green-cart');
+                cartIcon.setAttribute('aria-hidden', 'true');
+
+                desDiv.appendChild(categorySpan);
+                desDiv.appendChild(nameH5);
+                desDiv.appendChild(starDiv);
+                desDiv.appendChild(priceH4);
+                cartIcon.addEventListener('click', function(event) {
+                    addProductToCart(product);
+                    event.preventDefault(); // Prevent default behavior (navigation to #)
+                });
+                desDiv.appendChild(cartIcon);
+
+                productDiv.appendChild(img);
+                productDiv.appendChild(desDiv);
+
+                productsEl.appendChild(productDiv);
+            });
+        }
+
+        function addProductToCart(product) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push(product);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${product.name} added to cart!`);
+        }
+
+const products = [
+    { imgSrc: 'img/machinery/combine-harvestor.jpg', name: 'Combine Harvestor', category: 'Harvest', rating: 4, price: 'sh40000' },
+    { imgSrc: 'img/machinery/livestockFeed-mixer.webp', name: 'Feed Mixer', category: 'Mixer', rating: 5, price: 'sh50000' },
+    { imgSrc: 'img/machinery/Tractor.jpg', name: 'Tractor', category: 'Transport', rating: 4, price: 'sh3500000' }
+];
+
+renderProducts(products); // Call the function to render products
+
+
+
+    </script>
+</body>
+</html>

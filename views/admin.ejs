@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        /* Your existing styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: #fff;
+            padding-top: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .sidebar h4 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            color: #fff;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .content h2 {
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .card-body h5 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+
+        .table th {
+            background-color: #343a40;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .btn {
+            border-radius: 0;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: #35e708;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #28c207;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .sidebar a {
+                padding: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h4>Admin Dashboard</h4>
+        <a href="#overview">Overview</a>
+        <a href="#manage-products">Manage Products</a>
+        <a href="#manage-orders">Manage Orders</a>
+        <a href="#analytics">Analytics</a>
+        <a href="#manage-accounts">Manage Accounts</a>
+        <a href="#register-admin">Register Admin</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+
+    <div class="content">
+        <!-- Overview Section -->
+        <div id="overview">
+            <h2>Overview</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5>Total Products</h5>
+                            <p id="total-products">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5>Total Orders</h5>
+                            <p id="total-orders">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Products Section -->
+        <div id="manage-products" class="mt-5">
+            <h2>Manage Products</h2>
+            <button class="btn btn-primary mb-3" onclick="addProduct()">Want to add a Product?</button>
+            
+            <!-- Add Product Form -->
+            <div id="add-product-form" style="display: none;">
+                <h3>Add New Product</h3>
+                <div class="product-form">
+                    <form id="product-form" action="/post-product" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="product-name">Product Name:</label>
+                            <input type="text" id="product-name" name="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-description">Description:</label>
+                            <input type="text" id="product-description" name="productDescription" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-price">Price:</label>
+                            <input type="number" id="product-price" name="productPrice" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-image">Image:</label>
+                            <input type="file" id="product-image" name="productImage" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideProductForm()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="product-list">
+                    <!-- Product rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Manage Orders Section -->
+        <div id="manage-orders" class="mt-5">
+            <h2>Manage Orders</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="order-list">
+                    <!-- Order rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics" class="mt-5">
+            <h2>Analytics</h2>
+            <p>Data visualization and analytics features would be implemented here.</p>
+        </div>
+
+        <!-- Manage Accounts Section -->
+<div id="manage-accounts" class="mt-5">
+    <h2>Manage Accounts</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="user-list">
+            <!-- User rows will be dynamically added here -->
+        </tbody>
+    </table>
+</div>
+
+
+        <!-- Register Admin Section -->
+        <div id="register-admin" class="mt-5">
+            <h2>Register Admin</h2>
+            <form id="register" action="/admin/register" class="input-group" method="POST">
+                <input type="text" name="username" class="form-control mb-3" placeholder="Admin Username" required>
+                <input type="email" name="email" class="form-control mb-3" placeholder="Email ID" required>
+                <input type="password" name="password" class="form-control mb-3" placeholder="Enter Password" required>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    // Fetch and display total number of products
+    fetch('/api/products/count')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-products').textContent = data.count;
+        })
+        .catch(error => {
+            console.error('Error fetching total products:', error);
+            document.getElementById('total-products').textContent = 'Error';
+        });
+
+    // Fetch and display total number of orders
+    fetch('/api/Order/count')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('total-orders').textContent = data.count;
+        })
+        .catch(error => {
+            console.error('Error fetching total orders:', error);
+            document.getElementById('total-orders').textContent = 'Loading';
+        });
+
+});
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load products from server
+        fetch('/api/products')
+            .then(response => response.json())
+            .then(products => renderProducts(products))
+            .catch(error => console.error('Error fetching products:', error));
+
+        // Load orders from server
+        fetch('/api/Order')
+            .then(response => response.json())
+            .then(orders => renderOrders(orders))
+            .catch(error => console.error('Error fetching orders:', error));
+
+        // Load users from server for Manage Accounts section
+        fetch('/api/config')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.text().then(text => {
+                    throw new Error(`Server returned status ${response.status}: ${text}`);
+                });
+            }
+        })
+        .then(users => renderUsers(users))
+        .catch(error => console.error('Error fetching users:', error));
+    });
+
+    // Function to render products
+    function renderProducts(products) {
+        const productList = document.getElementById('product-list');
+        productList.innerHTML = '';  // Clear existing products
+        products.forEach(product => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${product.name}</td>
+                <td>${product.description}</td>
+                <td>${product.price}</td>
+                <td>${product.category}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editProduct('${product._id}')">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product._id}')">Delete</button>
+                </td>
+            `;
+            productList.appendChild(row);
+        });
+    }
+
+    // Function to render orders
+    function renderOrders(orders) {
+        const orderList = document.getElementById('order-list');
+        orderList.innerHTML = '';  // Clear existing orders
+        orders.forEach(order => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${order._id}</td>
+                <td>${order.customerName}</td>
+                <td>${order.totalPrice}</td>
+                <td>${order.status}</td>
+                <td>
+                    <button class="btn btn-info btn-sm" onclick="viewOrder('${order._id}')">View</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteOrder('${order._id}')">Delete</button>
+                </td>
+            `;
+            orderList.appendChild(row);
+        });
+    }
+
+    // Function to render users
+// Function to render users
+function renderUsers(users) {
+    const userList = document.getElementById('user-list');
+    userList.innerHTML = '';  // Clear existing users
+    console.log('Rendering users:', users); // Debugging line
+    users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${user._id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="editUser('${user._id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user._id}')">Delete</button>
+            </td>
+        `;
+        userList.appendChild(row);
+    });
+}
+
+
+    // Function to show add product form
+    function addProduct() {
+        document.getElementById('add-product-form').style.display = 'block';
+    }
+
+    // Function to hide add product form
+    function hideProductForm() {
+        document.getElementById('add-product-form').style.display = 'none';
+    }
+
+    // Function to edit a product
+    function editProduct(productId) {
+        // Fetch the product data and populate the form for editing
+        fetch(`/api/products/${productId}`)
+            .then(response => response.json())
+            .then(product => {
+                document.getElementById('product-id').value = product._id;
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-description').value = product.description;
+                document.getElementById('product-price').value = product.price;
+                document.getElementById('product-category').value = product.category;
+                document.getElementById('add-product-form').style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching product:', error));
+    }
+
+    // Function to delete a product
+    function deleteProduct(productId) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            fetch(`/api/products/${productId}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Product deleted:', result);
+                    location.reload(); // Reload the page to reflect the changes
+                })
+                .catch(error => console.error('Error deleting product:', error));
+        }
+    }
+
+    // Function to view order details
+    function viewOrder(orderId) {
+        // Fetch the order data and display it in a modal or dedicated section
+        fetch(`/api/orders/${orderId}`)
+            .then(response => response.json())
+            .then(order => {
+                document.getElementById('order-id').innerText = order._id;
+                document.getElementById('order-customerName').innerText = order.customerName;
+                document.getElementById('order-totalPrice').innerText = order.totalPrice;
+                document.getElementById('order-status').innerText = order.status;
+                // Show order details in a modal or dedicated section
+                $('#orderModal').modal('show');
+            })
+            .catch(error => console.error('Error fetching order:', error));
+    }
+
+    // Function to delete an order
+    async function deleteOrder(orderId) {
+  if (confirm('Are you sure you want to delete this order?')) {
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        alert('Order deleted successfully.');
+        // Refresh the orders list
+        fetchOrders();  // Ensure you have this function implemented to fetch and render orders
+      } else {
+        alert('Failed to delete the order.');
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      // Remove this line to not show an alert on error
+    }
+  }
+}
+
+
+
+    // Function to edit a user
+    function editUser(userId) {
+        // Fetch the user data and populate the form for editing
+        fetch(`/api/users/${userId}`)
+            .then(response => response.json())
+            .then(user => {
+                document.getElementById('user-id').value = user._id;
+                document.getElementById('user-username').value = user.username;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('edit-user-form').style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching user:', error));
+    }
+
+    // Function to delete a user
+    function deleteUser(userId) {
+        if (confirm('Are you sure you want to delete this user?')) {
+            fetch(`/api/users/${userId}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('User deleted:', result);
+                    location.reload(); // Reload the page to reflect the changes
+                })
+                .catch(error => console.error('Error deleting user:', error));
+        }
+    }
+    
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

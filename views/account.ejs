@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        #header {
+            background-color: #4CAF50;
+            padding: 10px 0;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        #menu-toggle {
+            display: none;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .menu-bar {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 5px 0;
+        }
+
+        #navbar {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #navbar li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        #navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+      
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #fff;
+            margin-top: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .account-section {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        @media screen and (max-width: 768px) {
+            #menu-toggle {
+                display: block;
+            }
+
+            #navbar {
+                display: none;
+                text-align: center;
+            }
+
+            #navbar.active {
+                display: block;
+            }
+
+            #navbar li {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/agri.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+<section id="header">
+    <a href="#"><img src="img/logo4.png" class="logo" alt="Logo"></a>
+    <div id="menu-toggle">
+        <div class="menu-bar"></div>
+        <div class="menu-bar"></div>
+        <div class="menu-bar"></div>
+    </div>
+    <ul id="navbar">
+        <li><a href="/">Home</a></li>
+        <li><a href="/shop">Shop</a></li>
+        <li><a class="active" href="/account">Account</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+    </ul>
+</section>
+
+<div class="container">
+    <!-- Account Overview Section -->
+    <div class="account-section">
+        <h3>Account Overview</h3>
+        <p><strong>Name:</strong> <%= user.username %></p>
+        <p><strong>Email:</strong> <%= user.email %></p>
+    </div>
+
+    <!-- Address Book Section -->
+    <div class="account-section">
+        <h3>Address Book</h3>
+        <form id="address-form" action="/account/update-address" method="POST">
+            <div class="mb-3">
+                <label for="address" class="form-label">Shipping Address</label>
+                <textarea id="address" name="address" class="form-control" rows="3" required><%= user.address || " " %></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Address</button>
+        </form>
+    </div>
+
+    <!-- Agrimmerce Store Credit Section -->
+    <div class="account-section">
+        <h3>Agrimmerce Store Credit</h3>
+        <p><strong>Store Credit Balance:</strong> KSh 0</p>
+    </div>
+
+    <!-- Newsletter Preferences Section -->
+    <div class="account-section">
+        <h3>Newsletter Preferences</h3>
+        <p>You are currently subscribed to the following newsletters:</p>
+        <ul>
+            <li>Daily Newsletters</li>
+        </ul>
+    </div>
+
+    <!-- Track My Order Section -->
+    <div class="account-section">
+        <h3>Track My Order</h3>
+        <form id="track-order-form" action="/account/track-order" method="GET">
+            <div class="mb-3">
+                <label for="order-id" class="form-label">Order ID</label>
+                <input type="text" id="order-id" name="orderId" class="form-control" placeholder="Enter your Order ID" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Track Order</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var menuToggle = document.getElementById('menu-toggle');
+        var navbar = document.getElementById('navbar');
+
+        if (menuToggle && navbar) { // Ensure elements are found
+            menuToggle.addEventListener('click', function () {
+                navbar.classList.toggle('active');
+            });
+        } else {
+            console.error("menu-toggle or navbar not found!"); // Log an error if elements are not found
+        }
+    });
+</script>
+</body>
+</html>

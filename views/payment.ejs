@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Form</title>
+  <style>
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .section-content {
+      border: 1px solid #ddd;
+      padding: 15px;
+      background-color: #fff;
+    }
+    .order-summary, .payment-method {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .order-summary {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+    .total {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: orange;
+      color: white;
+      text-align: center;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background-color: darkorange;
+    }
+    .payment-form, .mpesa-form, .complete-purchase {
+      display: none; /* Hide forms by default */
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+    .payment-form label,
+    .mpesa-form label {
+      display: block;
+      margin-top: 10px;
+    }
+    .payment-form input[type="text"],
+    .payment-form input[type="number"],
+    .mpesa-form input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .payment-form input[type="submit"],
+    .mpesa-form input[type="submit"],
+    .complete-purchase input[type="button"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .payment-form input[type="submit"]:hover,
+    .mpesa-form input[type="submit"]:hover,
+    .complete-purchase input[type="button"]:hover {
+      background-color: #3e8e41;
+    }
+    /* Customer Name Section */
+    .customer-name {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Customer Name -->
+    <div class="customer-name">
+      <span id="customer-name-display">Customer Name</span>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="section order-summary">
+      <div class="section-title">Order Summary</div>
+      <div class="section-content">
+        <p>Items Total: <span id="display-total-price">KSh -</span></p>
+        <p>Delivery Fees: <span>KSh -</span></p>
+        <div class="total">Total: <span id="display-total-price-total">KSh -</span></div>
+      </div>
+    </div>
+
+    <!-- Delivery Details -->
+    <div class="section">
+      <div class="section-title">Delivery Details</div>
+      <div class="section-content">
+        <p>Delivery Method: Door Delivery</p>
+        <p>Delivery Date: -</p>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="section">
+      <div class="section-title">Payment Method</div>
+      <div class="section-content">
+        <p><input type="radio" id="payMpesa" name="paymentMethod" value="mpesa"> Pay now with M-Pesa</p>
+        <p><input type="radio" id="payCard" name="paymentMethod" value="card"> Pay with Credit/Debit Card</p>
+        <p><input type="radio" id="payDelivery" name="paymentMethod" value="delivery"> Pay on Delivery</p>
+      </div>
+    </div>
+
+    <!-- M-Pesa Form -->
+    <div class="mpesa-form" id="mpesaForm">
+      <form action="/payment/mpesa" method="POST">
+        <label for="mpesaNumber">M-Pesa Number:</label>
+        <input type="text" id="mpesaNumber" name="mpesaNumber" inputmode="numeric" pattern="[0-9]*" required>
+
+        <input type="hidden" id="total-price-mpesa" name="totalPrice" value="0">
+        <p>Total Price: KSh <span id="display-total-price-mpesa">-</span></p>
+<!-- Include customerName in the form -->
+<input type="hidden" id="customerName" name="customerName" value="">
+
+        <input type="submit" value="Submit M-Pesa Payment">
+      </form>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="payment-form" id="paymentForm">
+      <form action="/payment/card" method="POST">
+        <label for="nameOnCard">Name on Card:</label>
+        <input type="text" id="nameOnCard" name="nameOnCard" required>
+
+        <label for="cardNumber">Card Number:</label>
+        <input type="text" id="cardNumber" name="cardNumber" inputmode="numeric" pattern="[0-9]*" required>
+
+        <label for="expiryDate">Expiry Date:</label>
+        <input type="text" id="expiryDate" name="expiryDate" required>
+
+        <label for="cvc">CVC:</label>
+        <input type="text" id="cvc" name="cvc" inputmode="numeric" pattern="[0-9]*" required>
+
+        <input type="hidden" id="total-price" name="totalPrice" value="0">
+        <p>Total Price: KSh <span id="display-total-price-card">-</span></p>
+<!-- Include customerName in the form -->
+<input type="hidden" id="customerName" name="customerName" value="">
+
+        <input type="submit" value="Submit Payment">
+      </form>
+    </div>
+
+    <!-- Complete Purchase Button (For Pay on Delivery) -->
+    <div class="complete-purchase" id="completePurchase">
+      <form action="/payment/delivery" method="POST">
+        <!-- Include customerName in the form -->
+        <input type="hidden" id="customerName" name="customerName" value="">
+
+        <input type="hidden" id="total-price-delivery" name="totalPrice" value="0">
+        <input type="hidden" id="customer-name-delivery" name="customerName" value="">
+        <input type="button" value="Complete Purchase" onclick="document.querySelector('form').submit();">
+      </form>
+    </div>
+  </div>
+
+<script>
+  // Function to get query parameters from the URL
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  // Function to fetch username from the server
+  function fetchUsername() {
+    fetch('/api/username')
+      .then(response => response.json())
+      .then(data => {
+        if (data.username) {
+          document.getElementById('customer-name-display').innerText = data.username;
+          // Set the hidden fields with the customer name
+          document.getElementById('customer-name-delivery').value = data.username;
+        } else {
+          console.error('Username not found in response');
+        }
+      })
+      .catch(error => console.error('Error fetching username:', error));
+  }
+
+  window.onload = function() {
+    // Fetch and display the username when the page loads
+    fetchUsername();
+
+    // Retrieve and set total price
+    const totalPrice = getQueryParam('totalPrice');
+    if (totalPrice) {
+      document.getElementById('total-price').value = totalPrice;
+      document.getElementById('display-total-price').innerText = totalPrice;
+      document.getElementById('total-price-mpesa').value = totalPrice;
+      document.getElementById('display-total-price-mpesa').innerText = totalPrice;
+      document.getElementById('display-total-price-card').innerText = totalPrice;
+      document.getElementById('total-price-delivery').value = totalPrice;
+    } else {
+      console.error("Total price not found in URL");
+    }
+
+    // Function to show/hide payment forms and button based on selected payment method
+    document.querySelectorAll('input[name="paymentMethod"]').forEach((elem) => {
+      elem.addEventListener('change', function(event) {
+        const paymentForm = document.getElementById('paymentForm');
+        const mpesaForm = document.getElementById('mpesaForm');
+        const completePurchase = document.getElementById('completePurchase');
+
+        if (event.target.value === 'card') {
+          paymentForm.style.display = 'block';
+          mpesaForm.style.display = 'none';
+          completePurchase.style.display = 'none';
+        } else if (event.target.value === 'mpesa') {
+          paymentForm.style.display = 'none';
+          mpesaForm.style.display = 'block';
+          completePurchase.style.display = 'none';
+        } else if (event.target.value === 'delivery') {
+          paymentForm.style.display = 'none';
+          mpesaForm.style.display = 'none';
+          completePurchase.style.display = 'block';
+        }
+      });
+    });
+  };
+</script>
+
+</body>
+</html>

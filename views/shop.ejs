@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      
+#post-product {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.product-header {
+  margin-bottom: 20px;
+}
+
+.product-form {
+  width: 50%; 
+}
+
+
+@media (max-width: 768px) {
+  .product-form {
+    width: 80%;
+  }
+}
+
+.products-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Three columns */
+  gap: 20px; /* Spacing between items */
+  justify-content: center;
+}
+
+.pro {
+  width: calc(33.333% - 20px); /* Adjusted width */
+  margin-left: 35px;
+  margin-bottom: 20px; /* Increased bottom margin */
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .products-container {
+    grid-template-columns: repeat(2, 1fr); /* Two columns for smaller screens */
+  }
+
+  .pro {
+    width: calc(50% - 20px);
+    margin-left: 15px; 
+  }
+}
+
+@media (max-width: 600px) {
+  .products-container {
+    grid-template-columns: 1fr; /* One column for even smaller screens */
+  }
+
+  .pro {
+    width: calc(100% - 20px); /* Adjusted width for very small screens */
+  }
+
+  /* Center the items in the one-column design */
+  .pro:nth-child(2n) {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.cart {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 360px;
+  max-height: 80vh; /* Set a maximum height to allow scrolling */
+  overflow-y: auto; /* Enable vertical scrolling if needed */
+  padding: 20px;
+  background: #fff;
+  box-shadow: -2px 0 4px hsl(0.4% 15% / 10%);
+  transition: 0.3s;
+}
+
+.cart.active{
+  right:0;
+}
+.cart-title{
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+}
+.cart-box{
+  display: grid;
+  grid-template-columns: 32% 50% 18%;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.cart-img{
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  padding: 10px;
+}
+.detail-box{
+  display: grid;
+  row-gap: 0.5rem;
+}
+.cart-product-title{
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+.cart-price{
+  font-weight: 400;
+}
+.cart-quantity{
+  border: 1px solid #35e708;
+  outline-color: #35e708;
+  width: 2.4rem;
+  text-align: center;
+  font-size: 1rem;
+}
+.cart-remove{
+  font-size: 24px;
+  color: #35e708;
+  cursor: pointer;
+}
+.total{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  border-top: 1px solid #293127;
+}
+.total-title{
+  font-size: 1rem;
+  font-weight: 600;
+}
+.total-price{
+  margin-left: 0.5rem;
+}
+.btn-buy{
+  display: flex;
+  margin: 1.5rem auto 0 auto;
+  padding: 12px 20px;
+  border: #35e708;
+  color: rgb(196, 196, 0);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-buy:hover{
+  background: #35e708;
+  color: white;
+}
+#close-cart{
+  position: absolute;
+  top: 1rem;
+  right: 0.8rem;
+  font-size: 2rem;
+  color: #293127;
+  cursor: pointer;
+}
+.green-cart {
+  color: rgb(8, 218, 8); /* Change the color to green */
+  cursor: pointer;
+}
+
+    </style>
+    <link rel="stylesheet" href="css/agri.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+    <section id="header">
+        <a href="#"><img src="img/logo4.png" class="logo" alt=""></a>
+        <div id="menu-toggle">
+          <div class="menu-bar"></div>
+          <div class="menu-bar"></div>
+          <div class="menu-bar"></div>
+        </div>
+        <ul id="navbar">
+          <li><a  href="/">Home</a></li>
+          <li><a class="active" href="/shop">Shop</a></li>
+          <li><a href="/account">Account</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+          <li><i class='fa fa-shopping-cart'id="cart-icon" style='color: white'></i></li>
+        </ul>
+        <div class="cart">
+          <!--cart close-->
+          <i class="fa fa-close" id="close-cart"></i>
+          <h2 class="cart-title">Your Cart</h2>
+          <!--Content-->
+          <div class="cart-content">
+            <div class="cart-box">
+              <img src="img/egg incubator.jpeg" alt="" class="cart-img">
+              <div class="detail-box">
+                <div class="cart-product-title">Egg Incubator</div>
+                <div class="cart-price">ksh 5000</div>
+                <input type="number" value="1" class="cart-quantity" oninput="updateTotal()">       
+              </div>
+              <i class="fa fa-trash-o cart-remove" onclick="removeItem(this)"></i>
+            </div> 
+          </div>
+                  <!--total-->
+                  <div class="total">
+                    <div class="total-title">Total</div>
+                    <div class="total-price totalAmount">ksh 5000</div>
+                  </div>
+                <!-- Buy button -->
+<button type="button" class="btn-buy" onclick="makePurchase();">Make Purchase</button>
+
+                </div>
+        
+      </section>
+
+      <section id="product1" class="section-p1">
+        <div class="product-header">
+          <h2>New Arrivals</h2>
+          <p>Best Agricultural Products</p>
+          <section id="search-bar">
+            <search-bar></search-bar>
+            <input type="text" id="search-item" placeholder="Search here..." onkeyup="search()">
+            <i class="fa fa-search"></i>
+          </section>
+          
+        </div>
+        
+        <div class="products-container" id="product-list">
+          <!-- The products will be rendered here -->
+          
+
+          
+        </div> 
+
+
+      </section>
+      <section id="post-product" class="section-p1">
+        <div class="product-header">
+            <h2>Post Your Product</h2>
+        </div>
+        <div class="product-form">
+            <form id="product-form" action="/post-product" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="product-name">Product Name:</label>
+                    <input type="text" id="product-name" name="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Description:</label>
+                    <input type="text"id="product-description"name="productDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Price:</label>
+                    <input type="number" id="product-price" name="productPrice" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-image">Image:</label>
+                    <input type="file" id="product-image" name="productImage" accept="image/*" required>
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </section>
+    
+    
+     <section id="sm-banner"class="section-p1">
+        <div class="banner-box">
+            <h4>crazy deals</h4>
+            <h2>Livestock</h2>
+            <span>Find the best livestock products on Agrimmerce</span>
+            <a href="/livestock"><button class="white">Shop Now</button></a>
+        </div>
+        <div class="banner-box banner-box2">
+            <h4>best prizes</h4>
+            <h2>Crops and Vegetables</h2>
+            <span>Buy and Sell the best crop products in the market.</span>
+           <a href="/crops"><button class="white">Shop Now</button></a>
+        </div>
+     </section>
+     <section id="banner3">
+        <div class="banner-box">
+            <h4>fast deliveries</h4>
+            <h2>Fruits</h2>
+            <span>Get the freshest fruits available.</span>
+            <a href="/fruits"><button class="white">Shop Now</button></a>
+        </div>
+        <div class="banner-box seedlings">
+            <h4>Convenient Sale</h4>
+            <h2>Seeds</h2>
+            <span>Get the best seeds in the market.</span>
+            <a href="seeds"><button class="white">Shop Now</button></a>
+        </div>
+        <div class="banner-box mach">
+            <h4>online based shopping</h4>
+            <h2>Machinery</h2>
+            <span>Get the latest agricultural technologies around</span>
+            <a href="/machinery"><button class="white">Shop Now</button></a>
+        </div>
+     </section>
+     <section id="newsletter"class="section-p1 section-m1">
+        <div class="newstext">
+            <h4>Sign Up For Newsletters</h4>
+            <p>Get E-mail updates about our latest shop and <span>special offers</span></p>
+        </div>
+        <div class="form">
+            <input type="text"placeholder="Your email address">
+            <button class="normal">Sign Up</button>
+        </div>
+     </section>
+     <script>
+   document.addEventListener('DOMContentLoaded', function () {
+    // Menu Toggle
+    var menuToggle = document.getElementById('menu-toggle');
+    var navbar = document.getElementById('navbar');
+    
+    if (menuToggle && navbar) {
+        menuToggle.addEventListener('click', function () {
+            navbar.classList.toggle('active');
+        });
+    } else {
+        console.error("menu-toggle or navbar not found!");
+    }
+
+    // Cart Icon Click
+    var cartIcon = document.querySelector('#cart-icon');
+    if (cartIcon) {
+        cartIcon.addEventListener('click', function(event) {
+            toggleCartVisibility(true);
+            event.preventDefault();
+        });
+    } else {
+        console.error("cart-icon not found!");
+    }
+
+    // Cart Close Button
+    var cartClose = document.getElementById('close-cart');
+    if (cartClose) {
+        cartClose.addEventListener('click', function () {
+            toggleCartVisibility(false);
+        });
+    } else {
+        console.error("close-cart not found!");
+    }
+
+    // Load Cart from Local Storage
+    if (localStorage.getItem('cart')) {
+        const savedCart = JSON.parse(localStorage.getItem('cart'));
+        renderCart(savedCart);
+    } else {
+        localStorage.setItem('cart', JSON.stringify([]));
+    }
+
+    // Search Input
+    document.querySelector('#search-item').addEventListener('input', search);
+
+    // Cart Content Click and Change
+    document.querySelector('.cart-content').addEventListener('click', function(event) {
+        if (event.target.classList.contains('cart-remove')) {
+            removeCartItem(event);
+        }
+    });
+
+    document.querySelector('.cart-content').addEventListener('change', function(event) {
+        if (event.target.classList.contains('cart-quantity')) {
+            quantityChanged(event);
+        }
+    });
+
+    // Fetch and render products
+    fetchProducts();
+});
+
+// Fetch products from server
+function fetchProducts() {
+    fetch('/api/products')
+        .then(response => response.json())
+        .then(products => renderProducts(products))
+        .catch(error => console.error('Error fetching products:', error));
+}
+
+// Render products on the page
+function renderProducts(products) {
+    const productsEl = document.getElementById('product-list');
+    productsEl.innerHTML = '';
+
+    products.forEach(product => {
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('pro');
+
+        const img = document.createElement('img');
+        img.src =  product.image; // Adjust as necessary
+        img.alt = product.name;
+       
+        
+        // Debugging: Log image source
+        console.log('Image Source:', img.src);
+
+        const desDiv = document.createElement('div');
+        desDiv.classList.add('des');
+
+        const categorySpan = document.createElement('span');
+        categorySpan.textContent = product.category;
+
+        const nameH5 = document.createElement('h5');
+        nameH5.textContent = product.name;
+
+        const starDiv = document.createElement('div');
+        starDiv.classList.add('star');
+
+        for (let i = 0; i < product.rating; i++) {
+            const starSpan = document.createElement('span');
+            starSpan.classList.add('fa', 'fa-star', 'checked');
+            starDiv.appendChild(starSpan);
+        }
+        const description = document.createElement('h5');
+        
+        const priceH4 = document.createElement('h4');
+        priceH4.textContent = "sh"+product.price;
+
+        const cartIcon = document.createElement('i');
+        cartIcon.classList.add('fa', 'fa-shopping-cart', 'green-cart');
+        cartIcon.setAttribute('aria-hidden', 'true');
+        cartIcon.addEventListener('click', function(event) {
+            addCartClicked(event);
+            event.preventDefault();
+        });
+
+        desDiv.appendChild(categorySpan);
+        desDiv.appendChild(nameH5);
+        desDiv.appendChild(starDiv);
+        desDiv.appendChild(priceH4);
+        desDiv.appendChild(cartIcon);
+
+        productDiv.appendChild(img);
+        productDiv.appendChild(desDiv);
+
+        productsEl.appendChild(productDiv);
+    });
+}
+
+
+// Function to add product to cart
+function addCartClicked(event) {
+    const button = event.target;
+    const productDiv = button.closest('.pro');
+
+    const productImgSrc = productDiv.querySelector('img').src;
+    const productName = productDiv.querySelector('h5').textContent;
+    const productPrice = productDiv.querySelector('h4').textContent;
+
+    const product = {
+        name: productName,
+        price: productPrice,
+        imgSrc: productImgSrc
+    };
+
+    addProductToCart(product);
+}
+
+// Add product to cart and update cart display
+function addProductToCart(product) {
+    const cart = JSON.parse(localStorage.getItem('cart'));
+    cart.push(product);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart(cart);
+}
+
+// Render cart items
+function renderCart(cart) {
+    const cartContent = document.querySelector('.cart-content');
+    cartContent.innerHTML = '';
+
+    cart.forEach(product => {
+        const cartItem = document.createElement('div');
+        cartItem.classList.add('cart-box');
+
+        const img = document.createElement('img');
+        img.src = product.imgSrc;
+        img.alt = product.name;
+        img.classList.add('cart-img');
+
+        const detailBox = document.createElement('div');
+        detailBox.classList.add('detail-box');
+
+        const productTitle = document.createElement('div');
+        productTitle.classList.add('cart-product-title');
+        productTitle.textContent = product.name;
+
+        const productPrice = document.createElement('div');
+        productPrice.classList.add('cart-price');
+        productPrice.textContent = product.price;
+
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.value = 1;
+        quantityInput.classList.add('cart-quantity');
+
+        const removeButton = document.createElement('i');
+        removeButton.classList.add('fa', 'fa-trash-o', 'cart-remove');
+
+        detailBox.appendChild(productTitle);
+        detailBox.appendChild(productPrice);
+        detailBox.appendChild(quantityInput);
+
+        cartItem.appendChild(img);
+        cartItem.appendChild(detailBox);
+        cartItem.appendChild(removeButton);
+
+        cartContent.appendChild(cartItem);
+    });
+
+    updateTotal();
+}
+
+// Function to remove product from cart
+function removeCartItem(event) {
+    const buttonClicked = event.target;
+    const cartItem = buttonClicked.closest('.cart-box');
+
+    const productName = cartItem.querySelector('.cart-product-title').textContent;
+    const productPrice = cartItem.querySelector('.cart-price').textContent;
+
+    const cart = loadCartFromStorage();
+    const updatedCart = cart.filter(product => product.name !== productName || product.price !== productPrice);
+
+    saveCartToStorage(updatedCart);
+    cartItem.remove();
+
+    updateTotal();
+}
+
+// Function to change product quantity
+function quantityChanged(event) {
+    const input = event.target;
+    if (isNaN(input.value) || input.value <= 0) {
+        input.value = 1;
+    }
+    updateTotal();
+}
+
+// Function to toggle cart visibility
+function toggleCartVisibility(show) {
+    const cart = document.querySelector('.cart');
+    if (show) {
+        cart.classList.add('active');
+    } else {
+        cart.classList.remove('active');
+    }
+}
+
+// Function to search products
+function search() {
+    let filter = document.getElementById('search-item').value.toUpperCase();
+    let items = document.querySelectorAll('.pro');
+
+    items.forEach(item => {
+        let h5 = item.querySelector('h5');
+        let span = item.querySelector('span');
+
+        let valueH5 = h5.innerHTML || h5.innerText || h5.textContent;
+        let valueSpan = span.innerHTML || span.innerText || span.textContent;
+
+        if (valueH5.toUpperCase().indexOf(filter) > -1 || valueSpan.toUpperCase().indexOf(filter) > -1) {
+            item.style.display = "";
+        } else {
+            item.style.display = "none";
+        }
+    });
+}
+
+// Function to update total price
+function updateTotal() {
+    let total = 0;
+    const cartItems = document.querySelectorAll('.cart-box');
+
+    cartItems.forEach(cartItem => {
+        const priceElement = cartItem.querySelector('.cart-price');
+        const quantityElement = cartItem.querySelector('.cart-quantity');
+        const price = parseFloat(priceElement.textContent.replace(/[^\d.]/g, ''));
+        const quantity = parseInt(quantityElement.value);
+
+        total += price * quantity;
+    });
+
+    document.querySelector('.totalAmount').textContent = 'ksh' + total.toFixed(2);
+}
+
+// Function to handle making the purchase
+function makePurchase() {
+    const totalAmount = document.querySelector('.totalAmount').innerText.replace('ksh', '');
+    window.location.href = `/payment?totalPrice=${totalAmount}`;
+}
+
+// Function to remove an item from the cart
+function removeItem(element) {
+    element.parentElement.remove();
+    updateTotal();
+}
+
+// Initial calculation
+updateTotal();
+
+
+
+// Helper function to load cart from storage
+function loadCartFromStorage() {
+    return JSON.parse(localStorage.getItem('cart')) || [];
+}
+
+// Helper function to save cart to storage
+function saveCartToStorage(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+      </script>
+      
+</body>
+</html>
