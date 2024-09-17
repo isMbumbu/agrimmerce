@@ -292,16 +292,6 @@ app.get('/api/overview', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-// Route to get the total count of orders
-app.get('/api/Order/count', (req, res) => {
-  Order.countDocuments({}, (err, count) => {
-      if (err) {
-          return res.status(500).json({ error: err.message });
-      }
-      res.json({ count });
-  });
-});
-
 app.get('/seeds', (req, res) => {
   res.render('seeds');
 });
