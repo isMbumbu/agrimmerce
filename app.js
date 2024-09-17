@@ -11,7 +11,7 @@ const collection = require('./config');
 const { getCartTotal } = require('./config2');
 const Order = require('./Order'); // Order model
 const Product = require('./models/product'); // Product model
-
+const orderRoutes = require('./orderroute');
 
 const app = express();
 const port = 3000;
@@ -511,7 +511,7 @@ app.post('/payment/card', async (req, res) => {
   }
 });
 
-
+app.use('/api', orderRoutes); // Mount the order routes
 
 // Express route to handle delivery payment
 app.post('/payment/delivery', async (req, res) => {
