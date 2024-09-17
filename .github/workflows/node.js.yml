@@ -1,0 +1,43 @@
+name: Node.js CI and Run Server
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Set up Node.js environment
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    # Install dependencies
+    - run: npm ci
+
+    # Build the project (optional, remove if not needed)
+    - run: npm run build --if-present
+    
+    # Start the server (runs in the background)
+    - name: Start Server
+      run: |
+        nohup npm start &
+        sleep 10
+    
+    # Stop the server after the workflow completes
+    - name: Stop Server
+      if: success()
+      run: kill $(lsof -t -i:3000)  # Replace 3000 with your server's port if different
