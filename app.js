@@ -7,11 +7,12 @@ const mongoose = require('mongoose');
 const path = require('path');
 const Admin = require('./admin'); // Path to your admin.js file
 const productRoutes = require('./productRoutes'); // Product routes
+const { login, registration, connect } = require('./config');
+
 const collection = require('./config');
 const { getCartTotal } = require('./config2');
 const Order = require('./Order'); // Order model
 const Product = require('./models/product'); // Product model
-const orderRoutes = require('./orderroute');
 
 const app = express();
 const port = 3000;
@@ -142,6 +143,16 @@ app.get('/api/username', (req, res) => {
     res.json({ username: req.session.username });
   } else {
     res.status(404).json({ message: 'Username not found' });
+  }
+});
+// Fetch all user accounts
+app.get('/api/config', async (req, res) => {
+  try {
+      const users = await registration.find(); // Fetch all users
+      res.json(users); // Send the user data as JSON
+  } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -511,7 +522,6 @@ app.post('/payment/card', async (req, res) => {
   }
 });
 
-app.use('/api', orderRoutes); // Mount the order routes
 
 // Express route to handle delivery payment
 app.post('/payment/delivery', async (req, res) => {
