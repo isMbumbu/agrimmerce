@@ -37,9 +37,21 @@ const orderSchema = new Schema({
     type: String,
     match: [/^\d{10}$/, 'Invalid M-Pesa number format']
   },
-  productNames: {
-    type: [String],  // Array of product names
-    required: true
+  products: [
+    {
+      productName: {
+        type: String,
+        required: true
+      },
+      productPrice: {
+        type: Number,
+        required: true
+      }
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
