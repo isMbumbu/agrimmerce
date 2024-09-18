@@ -129,7 +129,6 @@
         <a href="#overview">Overview</a>
         <a href="#manage-products">Manage Products</a>
         <a href="#manage-orders">Manage Orders</a>
-        <a href="#analytics">Analytics</a>
         <a href="#manage-accounts">Manage Accounts</a>
         <a href="#register-admin">Register Admin</a>
         <a href="/admin/logout">Logout</a>
@@ -219,12 +218,6 @@
             </table>
         </div>
 
-        <!-- Analytics Section -->
-        <div id="analytics" class="mt-5">
-            <h2>Analytics</h2>
-            <p>Data visualization and analytics features would be implemented here.</p>
-        </div>
-
         <!-- Manage Accounts Section -->
 <div id="manage-accounts" class="mt-5">
     <h2>Manage Accounts</h2>
@@ -242,6 +235,17 @@
         </tbody>
     </table>
 </div>
+<form id="edit-user-form" style="display: none;">
+    <input type="hidden" id="edit-user-id"> <!-- Hidden field to store the userId -->
+
+    <label for="user-username">Username:</label>
+    <input type="text" id="user-username" name="username" required>
+
+    <label for="user-email">Email:</label>
+    <input type="email" id="user-email" name="email" required>
+
+    <button type="submit">Save Changes</button>
+</form>
 
 
         <!-- Register Admin Section -->
@@ -269,22 +273,6 @@
             document.getElementById('total-products').textContent = 'Error';
         });
 
-    // Fetch and display total number of orders
-    fetch('/api/Order/count')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('total-orders').textContent = data.count;
-        })
-        .catch(error => {
-            console.error('Error fetching total orders:', error);
-            document.getElementById('total-orders').textContent = 'Loading';
-        });
-
 });
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -300,7 +288,7 @@
             .then(orders => renderOrders(orders))
             .catch(error => console.error('Error fetching orders:', error));
 
-            fetch('/api/users')
+            fetch('/api/config')
     .then(response => response.json())
     .then(users => renderUsers(users))
     .catch(error => console.error('Error fetching users:', error));
@@ -339,7 +327,6 @@
                 <td>${order.totalPrice}</td>
                 <td>${order.status}</td>
                 <td>
-                    <button class="btn btn-info btn-sm" onclick="viewOrder('${order._id}')">View</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteOrder('${order._id}')">Delete</button>
                 </td>
             `;
@@ -359,7 +346,6 @@ function renderUsers(users) {
             <td>${user.username}</td>
             <td>${user.email}</td>
             <td>
-                <button class="btn btn-warning btn-sm" onclick="editUser('${user._id}')">Edit</button>
                 <button class="btn btn-danger btn-sm" onclick="deleteUser('${user._id}')">Delete</button>
             </td>
         `;
@@ -456,35 +442,80 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 }
 
+function editUser(userId) {
+    // Fetch user details by ID
+    fetch(`/api/config/${userId}`)
+        .then(response => response.json())
+        .then(user => {
+            // Populate the form fields with user data
+            document.getElementById('user-username').value = user.username;
+            document.getElementById('user-email').value = user.email;
+            document.getElementById('edit-user-id').value = userId; // Set the hidden field with userId
+            document.getElementById('edit-user-form').style.display = 'block'; // Show the form
+        })
+        .catch(error => console.error('Error fetching user:', error));
+}
 
+document.getElementById('edit-user-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
 
-    // Function to edit a user
-    function editUser(userId) {
-        // Fetch the user data and populate the form for editing
-        fetch(`/api/users/${userId}`)
-            .then(response => response.json())
-            .then(user => {
-                document.getElementById('user-id').value = user._id;
-                document.getElementById('user-username').value = user.username;
-                document.getElementById('user-email').value = user.email;
-                document.getElementById('edit-user-form').style.display = 'block';
-            })
-            .catch(error => console.error('Error fetching user:', error));
-    }
+    const userId = document.getElementById('edit-user-id').value; // Get the userId from the hidden field
+    const username = document.getElementById('user-username').value;
+    const email = document.getElementById('user-email').value;
 
-    // Function to delete a user
-    function deleteUser(userId) {
-        if (confirm('Are you sure you want to delete this user?')) {
-            fetch(`/api/users/${userId}`, { method: 'DELETE' })
-                .then(response => response.json())
-                .then(result => {
-                    console.log('User deleted:', result);
-                    location.reload(); // Reload the page to reflect the changes
-                })
-                .catch(error => console.error('Error deleting user:', error));
+    // Send a PUT request to update the user
+    fetch(`/api/config/${userId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update user');
         }
+        return response.json();
+    })
+    .then(result => {
+        alert(result.message || 'User updated successfully!');
+        // Optionally, refresh the user list or hide the form
+        document.getElementById('edit-user-form').style.display = 'none'; // Hide the form
+        fetch('/api/config')
+            .then(response => response.json())
+            .then(users => renderUsers(users));
+    })
+    .catch(error => console.error('Error updating user:', error));
+});
+
+
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        fetch(`/api/config/${userId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+            return response.json();
+        })
+        .then(result => {
+            alert(result.message || 'User deleted successfully!');
+            // Refresh the user list after deletion
+            fetch('/api/config')
+                .then(response => response.json())
+                .then(users => renderUsers(users))
+                .catch(error => console.error('Error fetching updated user list:', error));
+        })
+        .catch(error => console.error('Error deleting user:', error));
     }
-    
+}
+
+
 </script>
 
 

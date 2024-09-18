@@ -137,12 +137,13 @@ app.get('/account', requireLogin, async (req, res) => {
 app.get('/login', (req, res) => {
   res.render('login');
 });
+
 // In your app.js or server file
 app.get('/api/username', (req, res) => {
   if (req.session && req.session.username) {
-    res.json({ username: req.session.username });
+      res.json({ username: req.session.username });
   } else {
-    res.status(404).json({ message: 'Username not found' });
+      res.status(401).json({ error: 'User not authenticated' });
   }
 });
 // Fetch all user accounts
@@ -187,6 +188,28 @@ app.get('/payment', (req, res) => {
     totalPrice: totalPrice
   });
 });
+// Update user by ID
+app.put('/api/config/:userId', async (req, res) => {
+  try {
+      const userId = req.params.userId;
+      const { username, email } = req.body; // Assuming you're editing username and email
+
+      // Find and update the user by ID
+      const updatedUser = await registration.findByIdAndUpdate(userId, {
+          username,
+          email
+      }, { new: true });
+
+      if (!updatedUser) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json({ message: 'User updated successfully', user: updatedUser });
+  } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 
 // Route for handling payment form submission
@@ -209,8 +232,17 @@ app.post('/payment', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-// Route for handling product uploads
-app.post('/upload', upload.single('image'), async (req, res) => {
+
+function isAuthenticated(req, res, next) {
+  if (req.session && req.session.username) {
+    return next(); // User is authenticated, proceed to the next middleware or route
+  }
+  res.redirect('/login'); // Redirect to login page if not authenticated
+}
+
+
+// Route for handling product uploads, restricted to authenticated users
+app.post('/upload', isAuthenticated, upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
@@ -219,7 +251,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   const { filename } = req.file;
 
   const imagePath = `uploads/${filename}`;
-
 
   // Create a new product document with the correct image path
   const product = new Product({
@@ -237,6 +268,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     res.status(500).json({ error: 'Failed to save product' });
   }
 });
+
 
 
 
@@ -448,7 +480,7 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-router.post('/api/products', async (req, res) => {
+app.post('/api/products',isAuthenticated, async (req, res) => {
   try {
       const { name, description, price, category } = req.body;
 
@@ -568,6 +600,20 @@ app.delete('/api/orders/:id', async (req, res) => {
   }
 });
 
+// Delete user by ID
+app.delete('/api/config/:userId', async (req, res) => {
+  try {
+      const userId = req.params.userId;
+      const deletedUser = await registration.findByIdAndDelete(userId); // Delete user by their ID
+      if (!deletedUser) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 module.exports = router;
 // Start server
