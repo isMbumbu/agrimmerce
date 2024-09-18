@@ -301,8 +301,15 @@ app.get('/admin', requireAdmin, (req, res) => {
 
 app.get('/api/products', async (req, res) => {
   try {
-    const products = await Product.find(); // Assuming `Product` is your model
-    res.json(products);
+    const products = await Product.find();
+    res.json(products.map(product => ({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      productName: product.productName,
+      productPrice: product.productPrice
+    })));
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');

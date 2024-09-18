@@ -1,44 +1,48 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new Schema({
   customerName: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   totalPrice: {
     type: Number,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    required: true,
+    min: [0, 'Total price must be positive']
   },
   paymentMethod: {
     type: String,
-    required: true,
-    enum: ['card', 'mpesa', 'delivery'] // Enum for allowed payment methods
+    enum: ['mpesa', 'card', 'delivery'],
+    required: true
   },
   nameOnCard: {
     type: String,
-    // Optional field, only applicable if paymentMethod is 'card'
+    trim: true
   },
   cardNumber: {
     type: String,
-    // Optional field, only applicable if paymentMethod is 'card'
+    match: [/^\d{16}$/, 'Invalid card number format']
   },
   expiryDate: {
     type: String,
-    // Optional field, only applicable if paymentMethod is 'card'
+    match: [/^\d{2}\/\d{2}$/, 'Invalid expiry date format']
   },
   cvc: {
     type: String,
-    // Optional field, only applicable if paymentMethod is 'card'
+    match: [/^\d{3}$/, 'Invalid CVC format']
   },
   mpesaNumber: {
     type: String,
-    // Optional field, only applicable if paymentMethod is 'mpesa'
+    match: [/^\d{10}$/, 'Invalid M-Pesa number format']
+  },
+  productNames: {
+    type: [String],  // Array of product names
+    required: true
   }
-}, { timestamps: true });
+});
 
 const Order = mongoose.model('Order', orderSchema);
+
 module.exports = Order;

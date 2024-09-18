@@ -611,11 +611,35 @@ function updateTotal() {
     document.querySelector('.totalAmount').textContent = 'ksh' + total.toFixed(2);
 }
 
-// Function to handle making the purchase
 function makePurchase() {
-    const totalAmount = document.querySelector('.totalAmount').innerText.replace('ksh', '');
-    window.location.href = `/payment?totalPrice=${totalAmount}`;
+    // Get cart items from localStorage (or other source)
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+
+    // Calculate total price and prepare product details
+    let totalAmount = 0;
+    const productNames = [];
+    const productPrices = [];
+    
+    cart.forEach(product => {
+        totalAmount += product.price;
+        productNames.push(product.name);
+        productPrices.push(product.price);
+    });
+
+    // Convert arrays to comma-separated strings for URL query parameters
+    const productNamesStr = encodeURIComponent(productNames.join(','));
+    const productPricesStr = encodeURIComponent(productPrices.join(','));
+
+    // Redirect to the payment page with query parameters
+    window.location.href = `/payment?totalPrice=${totalAmount}&productNames=${productNamesStr}&productPrices=${productPricesStr}`;
 }
+
+
 
 // Function to remove an item from the cart
 function removeItem(element) {

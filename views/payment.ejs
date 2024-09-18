@@ -99,6 +99,15 @@
       font-weight: bold;
       margin-bottom: 20px;
     }
+    .product-list {
+      margin-top: 20px;
+    }
+    .product-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
   </style>
 </head>
 <body>
@@ -112,8 +121,11 @@
     <div class="section order-summary">
       <div class="section-title">Order Summary</div>
       <div class="section-content">
+        <div id="product-list" class="product-list">
+          <!-- Products will be listed here -->
+        </div>
         <p>Items Total: <span id="display-total-price">KSh -</span></p>
-        <p>Delivery Fees: <span>KSh -</span></p>
+        <p>Delivery Fees: <span>KSh 150</span></p>
         <div class="total">Total: <span id="display-total-price-total">KSh -</span></div>
       </div>
     </div>
@@ -137,50 +149,74 @@
       </div>
     </div>
 
-    <!-- M-Pesa Form -->
-    <div class="mpesa-form" id="mpesaForm">
-      <form action="/payment/mpesa" method="POST">
-        <label for="mpesaNumber">M-Pesa Number:</label>
-        <input type="text" id="mpesaNumber" name="mpesaNumber" inputmode="numeric" pattern="[0-9]*" required>
+<!-- M-Pesa Form -->
+<div class="mpesa-form" id="mpesaForm">
+  <form action="/payment/mpesa" method="POST">
+    <!-- Include productIds -->
+    <input type="hidden" name="productIds" id="productIds-mpesa" value="">
 
-        <input type="hidden" id="total-price-mpesa" name="totalPrice" value="0">
-        <p>Total Price: KSh <span id="display-total-price-mpesa">-</span></p>
-<!-- Include customerName in the form -->
-<input type="hidden" id="customerName" name="customerName" value="">
+    <!-- other fields -->
+    <label for="mpesaNumber">M-Pesa Number:</label>
+    <input type="text" id="mpesaNumber" name="mpesaNumber" inputmode="numeric" pattern="[0-9]*" required>
 
-        <input type="submit" value="Submit M-Pesa Payment">
-      </form>
-    </div>
+    <input type="hidden" id="total-price-mpesa" name="totalPrice" value="0">
+    <p>Total Price: KSh <span id="display-total-price-mpesa">-</span></p>
+    <!-- Include customerName in the form -->
+    <input type="hidden" id="customerName-mpesa" name="customerName" value="">
 
-    <!-- Payment Form -->
-    <div class="payment-form" id="paymentForm">
-      <form action="/payment/card" method="POST">
-        <label for="nameOnCard">Name on Card:</label>
-        <input type="text" id="nameOnCard" name="nameOnCard" required>
+    <input type="submit" value="Submit M-Pesa Payment">
+  </form>
+</div>
 
-        <label for="cardNumber">Card Number:</label>
-        <input type="text" id="cardNumber" name="cardNumber" inputmode="numeric" pattern="[0-9]*" required>
+<!-- Payment Form -->
+<div class="payment-form" id="paymentForm">
+  <form action="/payment/card" method="POST">
+    <!-- Include productIds -->
+    <input type="hidden" name="productIds" id="productIds-card" value="">
 
-        <label for="expiryDate">Expiry Date:</label>
-        <input type="text" id="expiryDate" name="expiryDate" required>
+    <!-- other fields -->
+    <label for="nameOnCard">Name on Card:</label>
+    <input type="text" id="nameOnCard" name="nameOnCard" required>
 
-        <label for="cvc">CVC:</label>
-        <input type="text" id="cvc" name="cvc" inputmode="numeric" pattern="[0-9]*" required>
+    <label for="cardNumber">Card Number:</label>
+    <input type="text" id="cardNumber" name="cardNumber" inputmode="numeric" pattern="[0-9]*" required>
 
-        <input type="hidden" id="total-price" name="totalPrice" value="0">
-        <p>Total Price: KSh <span id="display-total-price-card">-</span></p>
-<!-- Include customerName in the form -->
-<input type="hidden" id="customerName" name="customerName" value="">
+    <label for="expiryDate">Expiry Date:</label>
+    <input type="text" id="expiryDate" name="expiryDate" required>
 
-        <input type="submit" value="Submit Payment">
-      </form>
-    </div>
+    <label for="cvc">CVC:</label>
+    <input type="text" id="cvc" name="cvc" inputmode="numeric" pattern="[0-9]*" required>
+
+    <input type="hidden" id="total-price-card" name="totalPrice" value="0">
+    <p>Total Price: KSh <span id="display-total-price-card">-</span></p>
+    <!-- Include customerName in the form -->
+    <input type="hidden" id="customerName-card" name="customerName" value="">
+
+    <input type="submit" value="Submit Payment">
+  </form>
+</div>
+
+<!-- Complete Purchase Button (For Pay on Delivery) -->
+<div class="complete-purchase" id="completePurchase">
+  <form action="/payment/delivery" method="POST">
+    <!-- Include productIds -->
+    <input type="hidden" name="productIds" id="productIds-delivery" value="">
+
+    <!-- other fields -->
+    <!-- Include customerName in the form -->
+    <input type="hidden" id="customerName-delivery" name="customerName" value="">
+
+    <input type="hidden" id="total-price-delivery" name="totalPrice" value="0">
+    <input type="button" value="Complete Purchase" onclick="document.querySelector('form').submit();">
+  </form>
+</div>
+
 
     <!-- Complete Purchase Button (For Pay on Delivery) -->
     <div class="complete-purchase" id="completePurchase">
       <form action="/payment/delivery" method="POST">
         <!-- Include customerName in the form -->
-        <input type="hidden" id="customerName" name="customerName" value="">
+        <input type="hidden" id="customerName-delivery" name="customerName" value="">
 
         <input type="hidden" id="total-price-delivery" name="totalPrice" value="0">
         <input type="hidden" id="customer-name-delivery" name="customerName" value="">
@@ -195,6 +231,52 @@
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
   }
+
+  window.onload = function() {
+    const totalPrice = getQueryParam('totalPrice');
+    const productNames = getQueryParam('productNames');
+    const productPrices = getQueryParam('productPrices');
+
+    console.log('Total Price from URL:', totalPrice);  // Debugging line
+    console.log('Product Names from URL:', productNames);  // Debugging line
+    console.log('Product Prices from URL:', productPrices);  // Debugging line
+
+    if (totalPrice && productNames && productPrices) {
+        // Split product names and prices into arrays
+        const productNamesArray = productNames.split(',').map(name => decodeURIComponent(name));
+        const productPricesArray = productPrices.split(',').map(price => price.replace('sh', ''));
+
+        // Calculate total price
+        const productTotalPrice = productPricesArray.reduce((total, price) => total + parseFloat(price), 0);
+        const deliveryFee = 150; // Delivery fee
+        const totalPriceValue = productTotalPrice + deliveryFee;
+
+        // Display product details
+        const productList = document.getElementById('product-list');
+
+        productList.innerHTML = productNamesArray.map((name, index) =>
+            `<div class="product-item">
+              <span>Product: ${name}</span>
+              <span>Price: sh${productPricesArray[index]}</span>
+            </div>`).join('');
+
+        // Update displayed prices
+        document.getElementById('display-total-price').innerText = `KSh ${productTotalPrice}`;
+        document.getElementById('display-total-price-total').innerText = `KSh ${totalPriceValue}`;
+        document.getElementById('display-total-price-mpesa').innerText = `KSh ${totalPriceValue}`;
+        document.getElementById('display-total-price-card').innerText = `KSh ${totalPriceValue}`;
+
+        // Update hidden fields
+        document.getElementById('total-price-mpesa').value = totalPriceValue;
+        document.getElementById('total-price-card').value = totalPriceValue;
+        document.getElementById('total-price-delivery').value = totalPriceValue;
+        document.getElementById('customerName-mpesa').value = document.getElementById('customer-name-display').innerText;
+        document.getElementById('customerName-card').value = document.getElementById('customer-name-display').innerText;
+        document.getElementById('customerName-delivery').value = document.getElementById('customer-name-display').innerText;
+    } else {
+        console.error("Total price, product names, or product prices not found in URL");
+    }
+};
 
   // Function to fetch username from the server
   function fetchUsername() {
@@ -211,48 +293,66 @@
       })
       .catch(error => console.error('Error fetching username:', error));
   }
-
-  window.onload = function() {
-    // Fetch and display the username when the page loads
-    fetchUsername();
-
-    // Retrieve and set total price
-    const totalPrice = getQueryParam('totalPrice');
-    if (totalPrice) {
-      document.getElementById('total-price').value = totalPrice;
-      document.getElementById('display-total-price').innerText = totalPrice;
-      document.getElementById('total-price-mpesa').value = totalPrice;
-      document.getElementById('display-total-price-mpesa').innerText = totalPrice;
-      document.getElementById('display-total-price-card').innerText = totalPrice;
-      document.getElementById('total-price-delivery').value = totalPrice;
-    } else {
-      console.error("Total price not found in URL");
-    }
-
-    // Function to show/hide payment forms and button based on selected payment method
-    document.querySelectorAll('input[name="paymentMethod"]').forEach((elem) => {
-      elem.addEventListener('change', function(event) {
-        const paymentForm = document.getElementById('paymentForm');
-        const mpesaForm = document.getElementById('mpesaForm');
-        const completePurchase = document.getElementById('completePurchase');
-
-        if (event.target.value === 'card') {
-          paymentForm.style.display = 'block';
-          mpesaForm.style.display = 'none';
-          completePurchase.style.display = 'none';
-        } else if (event.target.value === 'mpesa') {
-          paymentForm.style.display = 'none';
-          mpesaForm.style.display = 'block';
-          completePurchase.style.display = 'none';
-        } else if (event.target.value === 'delivery') {
-          paymentForm.style.display = 'none';
-          mpesaForm.style.display = 'none';
-          completePurchase.style.display = 'block';
-        }
+fetchUsername();
+document.addEventListener('DOMContentLoaded', function () {
+  // Show the form based on the selected payment method
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+    radio.addEventListener('change', function () {
+      // Hide all forms
+      document.querySelectorAll('.payment-form, .mpesa-form, .complete-purchase').forEach(form => {
+        form.style.display = 'none';
       });
-    });
-  };
-</script>
 
+      // Show the selected form
+      const selectedValue = document.querySelector('input[name="paymentMethod"]:checked').value;
+      if (selectedValue === 'mpesa') {
+        document.getElementById('mpesaForm').style.display = 'block';
+      } else if (selectedValue === 'card') {
+        document.getElementById('paymentForm').style.display = 'block';
+      } else if (selectedValue === 'delivery') {
+        document.getElementById('completePurchase').style.display = 'block';
+      }
+    });
+  });
+});
+// Function to handle form submission
+function submitOrder() {
+  const customerName = document.getElementById('customer-name-display').innerText;
+  const totalPrice = parseInt(document.getElementById('display-total-price-total').innerText.replace('KSh ', ''));
+  const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+  const nameOnCard = document.getElementById('nameOnCard') ? document.getElementById('nameOnCard').value : '';
+  const cardNumber = document.getElementById('cardNumber') ? document.getElementById('cardNumber').value : '';
+  const expiryDate = document.getElementById('expiryDate') ? document.getElementById('expiryDate').value : '';
+  const cvc = document.getElementById('cvc') ? document.getElementById('cvc').value : '';
+  const mpesaNumber = document.getElementById('mpesaNumber') ? document.getElementById('mpesaNumber').value : '';
+  const productIds = [ /* List of product IDs */ ]; // Replace with actual product IDs
+
+  fetch('/place-order', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      customerName,
+      totalPrice,
+      paymentMethod,
+      nameOnCard,
+      cardNumber,
+      expiryDate,
+      cvc,
+      mpesaNumber,
+      productIds
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Order placed successfully:', data);
+    // Handle success (e.g., redirect or show a confirmation message)
+  })
+  .catch(error => console.error('Error placing order:', error));
+}
+
+
+</script>
 </body>
 </html>
