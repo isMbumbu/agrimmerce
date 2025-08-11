@@ -34,6 +34,12 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  
+};
+
 
 async function connectDB() {
   try {
