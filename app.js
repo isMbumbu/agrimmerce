@@ -5,9 +5,10 @@ const multer = require('multer');
 const router = express.Router();
 const mongoose = require('mongoose');
 const path = require('path');
+const mongoURI=process.env.MONGODB_URI;
 const Admin = require('./admin'); // Path to your admin.js file
 const productRoutes = require('./productRoutes'); // Product routes
-const { login, registration, connect } = require('./config');
+const { login, registration } = require('./config');
 
 const collection = require('./config');
 const { getCartTotal } = require('./config2');
@@ -61,10 +62,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost:27017/login', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('MongoDB connection error:', err));
 
 // Use the product routes
 app.use('/api', productRoutes);
