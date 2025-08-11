@@ -35,6 +35,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+async function connectDB() {
+  try {
+    await mongoose.connect(mongoURI, options);
+    console.log('MongoDB connected successfully');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Starting server without DB connection (dev mode)');
+    } else {
+      process.exit(1);
+    }
+  }
+}
+
+async function startServer() {
+  await connectDB();
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+startServer();
 
 
 
