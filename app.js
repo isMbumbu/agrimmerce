@@ -35,17 +35,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-    });
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit app if no DB connection
-  });
+
+
 
 // Middleware to parse request body
 app.use(express.json());
