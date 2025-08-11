@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
@@ -16,7 +18,7 @@ const Order = require('./Order'); // Order model
 const Product = require('./models/product'); // Product model
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 
 // Set up multer storage
 const storage = multer.diskStorage({
@@ -32,6 +34,18 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // Exit app if no DB connection
+  });
 
 // Middleware to parse request body
 app.use(express.json());
