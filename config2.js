@@ -1,12 +1,21 @@
-
-
 const { MongoClient } = require('mongodb');
 
-const url = 'mongodb://localhost:27017/login'; // Connect to the 'login' database
+const url = process.env.MONGODB_URI; // load from .env
 const dbName = 'login';
 const cartCollectionName = 'cart';
 
 let client;
+
+async function connect() {
+    if (!client) {
+      client = new MongoClient(url, { useUnifiedTopology: true });
+      await client.connect();
+    }
+    const db = client.db(dbName);
+    const cartCollection = db.collection(cartCollectionName);
+    return cartCollection;
+}
+
 
 async function connect() {
     if (!client) {

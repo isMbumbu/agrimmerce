@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
-
+require('dotenv').config();
 // Connect to the MongoDB database
-const connect = mongoose.connect("mongodb://localhost:27017/login").catch(error => {
+
+const mongoURI = process.env.MONGODB_URI;
+const connect = mongoose.connect(mongoURI).catch(error => {
     console.error("Failed to connect to database:", error);
 });
 
